@@ -6,6 +6,12 @@ export const searchTracks = async (query) => {
     `${BASE_URL}?method=track.search&track=${query}&api_key=${API_KEY}&format=json&limit=20`
   );
   const data = await response.json();
+
+  console.log('Full API response:', data);
+  console.log('Available keys:', Object.keys(data));
+  console.log('API Key from env:', import.meta.env.VITE_LASTFM_API_KEY);
+  console.log('API Key length:', import.meta.env.VITE_LASTFM_API_KEY?.length);
+
   return data.results.trackmatches.track;
 };
 
@@ -38,7 +44,7 @@ export const searchArtistsByTag = async (tag) => {
     `${BASE_URL}?method=tag.getTopArtists&tag=${tag}&api_key=${API_KEY}&format=json&limit=20`
   );
   const data = await response.json();
-  return data.artists.artist;
+  return data.topartists.artist;
 };
 
 export const searchTracksByTag = async (tag) => {
@@ -49,13 +55,16 @@ export const searchTracksByTag = async (tag) => {
   return data.tracks.track;
 };
 
-export const getTopAlbums = async () => {
-  const response = await fetch(
-    `${BASE_URL}?method=chart.getTopAlbums&api_key=${API_KEY}&format=json&limit=12`
-  );
-  const data = await response.json();
-  return data.albums.album;
-};
+// export const getTopAlbums = async () => {
+//   const response = await fetch(
+//     `${BASE_URL}?method=chart.getTopAlbums&api_key=${API_KEY}&format=json&limit=12`
+//   );
+//   const data = await response.json();
+// 
+//   console.log('Top Albums full response:', data);
+//   console.log('Top-level keys:', Object.keys(data));
+//   return data;
+// };
 
 export const getTopArtists = async () => {
   const response = await fetch(
