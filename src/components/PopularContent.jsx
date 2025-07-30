@@ -1,4 +1,7 @@
-function PopularContent({ tracks, artists }) {
+function PopularContent({ tracks, artists, loading }) {
+  if (loading) {
+    return <div>Loading popular content data...</div>;
+  };
 
   return (
     <div className="popular-content">
