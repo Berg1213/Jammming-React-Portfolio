@@ -13,9 +13,9 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState(null);
   const [popularData, setPopularData] = useState(null);
+  const [searchSuggestions, setSearchSuggestions] = useState([]);
 
   const [popularLoading, setPopularLoading] = useState(true);
-  //const [searchLoading, setSearchLoading] = useState(false);
 
   useEffect(() => {
     const fetchPopularData = async () => {
@@ -29,6 +29,20 @@ function App() {
 
     fetchPopularData();
   }, []);
+
+  useEffect(() => {
+    const fetchSuggestions = setTimeout(async (searchTerm) => {
+      const [tracks, artists] = await Promise.all([
+        searchTracks(searchTerm), searchArtists(searchTerm)
+      ])
+
+      const suggestions = [artists.slice(0, 3), tracks.slice(0, 5)];
+
+      setSearchSuggestions(suggestions);
+    }, 300);
+
+    return () => clearTimeout(fetchSuggestions);
+  }, [searchTerm]);
 
   return (
     <div>
