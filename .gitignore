@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 src/tests
 .env
-Notes2
+Notes2.md
