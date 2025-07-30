@@ -19,10 +19,12 @@ function App() {
 
   useEffect(() => {
     const fetchPopularData = async () => {
+      setLoading(true);
       const [artists, tracks] = await Promise.all([
         getTopArtists(), getTopTracks()
       ]);
       setPopularData({ artists, tracks});
+      setLoading(false);
     };
 
     fetchPopularData();
