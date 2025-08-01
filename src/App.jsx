@@ -7,7 +7,7 @@ import Track from "./components/Track";
 
 import { useState,useEffect } from "react";
 
-import { getTopArtists,getTopTracks } from "./utils/LastFMAPI";
+import { getTopArtists,getTopTracks, searchTracks, searchArtists } from "./utils/LastFMAPI";
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,26 +19,28 @@ function App() {
 
   useEffect(() => {
     const fetchPopularData = async () => {
-      setLoading(true);
+      setPopularLoading(true);
       const [artists, tracks] = await Promise.all([
         getTopArtists(), getTopTracks()
       ]);
       setPopularData({ artists, tracks});
-      setLoading(false);
+      setPopularLoading(false);
     };
 
     fetchPopularData();
   }, []);
 
   useEffect(() => {
-    const fetchSuggestions = setTimeout(async (searchTerm) => {
-      const [tracks, artists] = await Promise.all([
-        searchTracks(searchTerm), searchArtists(searchTerm)
-      ])
+    const fetchSuggestions = setTimeout(async () => {
+      if (searchTerm.length > 2) {
+        const [tracks, artists] = await Promise.all([
+          searchTracks(searchTerm), searchArtists(searchTerm)
+        ])
 
-      const suggestions = [artists.slice(0, 3), tracks.slice(0, 5)];
+        const suggestions = [...artists.slice(0, 3), ...tracks.slice(0, 5)];
 
-      setSearchSuggestions(suggestions);
+        setSearchSuggestions(suggestions);
+      }
     }, 300);
 
     return () => clearTimeout(fetchSuggestions);
@@ -46,7 +48,11 @@ function App() {
 
   return (
     <div>
-      <SearchBar onSearch={handleSearch} />
+      <SearchBar 
+        /* onSearch={handleSearch} */ 
+        searchTerm={searchTerm} 
+        setSearchTerm={setSearchTerm}
+        suggestions= {searchSuggestions}/>
       {searchResults ? (
         <SearchResults data={searchResults} />
       ) : (
