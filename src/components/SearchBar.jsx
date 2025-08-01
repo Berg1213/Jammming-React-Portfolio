@@ -1,19 +1,31 @@
-function SearchBar({ searchTerm, setSearchTerm, handleSearch }) {
+function SearchBar({ searchTerm, setSearchTerm, handleSearch,suggestions }) {
 
   return (
     <>
         <div className="search">
-          <form onSubmit={handleSearch} className="search-form">
+          <form /* onSubmit={handleSearch} */ className="search-form">
             <input 
                 type="text" 
-                placeholder="search" 
+                placeholder="Search for music..." 
                 className="search-input" 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)}
                 />
             <button type="submit" className="search-button">Search</button>
           </form>
+
+          {suggestions && suggestions.length > 0 && (
+            <div className="suggestions-dropdown">
+              {suggestions.map((suggestion, index) => (
+                <div key={index} className="suggestion-item">
+                  {suggestion.name}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
     </>
   );
 }
+
+export default SearchBar;
