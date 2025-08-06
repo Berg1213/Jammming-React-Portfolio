@@ -1,5 +1,5 @@
 function SearchBar({ searchTerm, setSearchTerm, handleSearch,suggestions }) {
-
+  console.log(suggestions);
   return (
     <>
         <div className="search">
@@ -17,9 +17,14 @@ function SearchBar({ searchTerm, setSearchTerm, handleSearch,suggestions }) {
           {suggestions && suggestions.length > 0 && (
             <div className="suggestions-dropdown">
               {suggestions.map((suggestion, index) => (
+                suggestion?.artist ? (<div key={index} className="suggestion-item">
+                  {`${suggestion.name} -- ${suggestion.artist?.name || suggestion.artist}`}
+                  </div>
+                  ) : (
                 <div key={index} className="suggestion-item">
                   {suggestion.name}
                 </div>
+                )
               ))}
             </div>
           )}

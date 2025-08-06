@@ -68,7 +68,7 @@ export const searchTracksByTag = async (tag) => {
 
 export const getTopArtists = async () => {
   const response = await fetch(
-    `${BASE_URL}?method=chart.getTopArtists&api_key=${API_KEY}&format=json&limit=8`
+    `${BASE_URL}?method=chart.getTopArtists&api_key=${API_KEY}&format=json&limit=1000`
   );
   const data = await response.json();
   return data.artists.artist;
@@ -76,7 +76,7 @@ export const getTopArtists = async () => {
 
 export const getTopTracks = async () => {
   const response = await fetch(
-    `${BASE_URL}?method=chart.getTopTracks&api_key=${API_KEY}&format=json&limit=10`
+    `${BASE_URL}?method=chart.getTopTracks&api_key=${API_KEY}&format=json&limit=1000`
   );
   const data = await response.json();
   return data.tracks.track;

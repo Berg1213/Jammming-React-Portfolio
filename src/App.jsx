@@ -32,19 +32,39 @@ function App() {
 
   useEffect(() => {
     const fetchSuggestions = setTimeout(async () => {
-      if (searchTerm.length > 2) {
-        const [tracks, artists] = await Promise.all([
-          searchTracks(searchTerm), searchArtists(searchTerm)
-        ])
+        console.log('popularData:', popularData);
+        console.log('popularData.artists length:', popularData.artists?.length);
+        console.log('First few artist names:', popularData.artists?.slice(0, 5).map(a => a.name));
+        console.log('Full artist list:', popularData.artists.map(artist => artist.name));       
 
-        const suggestions = [...artists.slice(0, 3), ...tracks.slice(0, 5)];
+      if (searchTerm.length > 2 && popularData?.artists && popularData?.tracks) {
+        const filteredArtists = popularData.artists.filter(artist => 
+          artist.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        const filteredTracks = popularData.tracks.filter(track => 
+          track.name.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        let finalArtists;
+        let finalTracks;
+        
+        if (filteredArtists.length < 0) {
+          finalArtists = await searchArtists(searchTerm);
+        } else {
+          finalArtists = filteredArtists;
+        }
+
+        if (filteredTracks.length < 0) {
+          finalTracks = await searchTracks(searchTerm);
+        } else {
+          finalTracks = filteredTracks;
+        }
+        const suggestions = [...finalArtists.slice(0, 3), ...finalTracks.slice(0, 5)];
 
         setSearchSuggestions(suggestions);
       }
     }, 300);
 
     return () => clearTimeout(fetchSuggestions);
-  }, [searchTerm]);
+  }, [searchTerm, popularData]);
 
   return (
     <div>
