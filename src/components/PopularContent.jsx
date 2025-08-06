@@ -29,7 +29,7 @@ function PopularContent({ tracks, artists, loading }) {
 
   return (
     <div className="popular-content">
-      <div className="popular-tracks">{tracks?.map(track => (
+      <div className="popular-tracks">{tracks?.slice(0,10).map(track => (
         <div key={track.url}>
           {!isPlaceholder(track.image[2]?.['#text']) && (
             <img src={track.image[2]?.['#text']} alt={track.name} />
@@ -42,7 +42,7 @@ function PopularContent({ tracks, artists, loading }) {
         </div>
       ))}
       </div>
-      <div className="popular-artists">{artists?.map(artist => (
+      <div className="popular-artists">{artists?.slice(0,8).map(artist => (
         <div key={artist.url}>
           {!isPlaceholder(artist.image[2]?.['#text']) && (
             <img src={artist.image[2]?.['#text']} alt={artist.name} />
