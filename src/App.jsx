@@ -7,7 +7,10 @@ import Track from "./components/Track";
 
 import { useState,useEffect } from "react";
 
-import { getTopArtists,getTopTracks, searchTracks, searchArtists } from "./utils/LastFMAPI";
+import { 
+  getTopArtists,getTopTracks, searchTracks, searchArtists,
+  searchAlbumsByTag, searchArtistsByTag, searchTracksByTag 
+} from "./utils/LastFMAPI";
 
 function App() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,6 +19,29 @@ function App() {
   const [searchSuggestions, setSearchSuggestions] = useState([]);
 
   const [popularLoading, setPopularLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(true);
+
+  const handleSearch = (e, suggestion) => {
+    e.preventDefault();
+    let query;
+    if (suggestion) {
+      query = suggestion.name;
+    }  else {
+      query = searchTerm;
+    }
+
+    const fetchSearchResults = async () => {
+      setSearchLoading(true);
+      const [artists, tracks, artistTags, trackTags, albumTags] = await Promise.all([
+        searchArtists(query), searchTracks(query), searchArtistsByTag(query),
+        searchTracksByTag(query), searchAlbumsByTag(query)
+      ]);
+      setSearchResults({ artists, tracks, artistTags, trackTags, albumTags });
+      setSearchLoading(false);
+    };
+
+    fetchSearchResults();
+  };
 
   useEffect(() => {
     const fetchPopularData = async () => {
@@ -69,7 +95,7 @@ function App() {
   return (
     <div>
       <SearchBar 
-        /* onSearch={handleSearch} */ 
+        handleSearch={handleSearch} 
         searchTerm={searchTerm} 
         setSearchTerm={setSearchTerm}
         suggestions= {searchSuggestions}/>

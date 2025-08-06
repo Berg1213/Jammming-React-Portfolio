@@ -1,9 +1,9 @@
 function SearchBar({ searchTerm, setSearchTerm, handleSearch,suggestions }) {
-  console.log(suggestions);
+  console.log('SearchBar received:', typeof handleSearch)
   return (
     <>
         <div className="search">
-          <form /* onSubmit={handleSearch} */ className="search-form">
+          <form onSubmit={handleSearch} className="search-form">
             <input 
                 type="text" 
                 placeholder="Search for music..." 
@@ -17,11 +17,19 @@ function SearchBar({ searchTerm, setSearchTerm, handleSearch,suggestions }) {
           {suggestions && suggestions.length > 0 && (
             <div className="suggestions-dropdown">
               {suggestions.map((suggestion, index) => (
-                suggestion?.artist ? (<div key={index} className="suggestion-item">
+                suggestion?.artist ? (<div 
+                                        key={index} 
+                                        className="suggestion-item" 
+                                        onClick={(e) => handleSearch(e, suggestion)}
+                                        >
                   {`${suggestion.name} -- ${suggestion.artist?.name || suggestion.artist}`}
                   </div>
                   ) : (
-                <div key={index} className="suggestion-item">
+                <div 
+                  key={index} 
+                  className="suggestion-item" 
+                  onClick={(e) => handleSearch(e, suggestion)}
+                  >
                   {suggestion.name}
                 </div>
                 )
