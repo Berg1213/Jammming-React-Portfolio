@@ -100,7 +100,7 @@ function App() {
         setSearchTerm={setSearchTerm}
         suggestions= {searchSuggestions}/>
       {searchResults ? (
-        <SearchResults data={searchResults} />
+        <SearchResults data={searchResults} loading={searchLoading} />
       ) : (
         <PopularContent 
           artists={popularData?.artists} 
