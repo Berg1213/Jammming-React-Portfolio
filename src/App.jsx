@@ -38,6 +38,7 @@ function App() {
       ]);
       setSearchResults({ artists, tracks, artistTags, trackTags, albumTags });
       setSearchLoading(false);
+      setSearchTerm('');
     };
 
     fetchSearchResults();
@@ -57,6 +58,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (searchTerm.length <= 2) {
+      setSearchSuggestions([]);
+      return;
+    }
     const fetchSuggestions = setTimeout(async () => {
         console.log('popularData:', popularData);
         console.log('popularData.artists length:', popularData.artists?.length);
