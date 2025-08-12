@@ -3,7 +3,7 @@ const BASE_URL = 'https://ws.audioscrobbler.com/2.0/';
 
 export const searchTracks = async (query) => {
   const response = await fetch(
-    `${BASE_URL}?method=track.search&track=${query}&api_key=${API_KEY}&format=json&limit=20`
+    `${BASE_URL}?method=track.search&track=${query}&api_key=${API_KEY}&format=json&limit=1000`
   );
   const data = await response.json();
 
@@ -17,7 +17,7 @@ export const searchTracks = async (query) => {
 
 export const searchArtists = async (query) => {
   const response = await fetch(
-    `${BASE_URL}?method=artist.search&artist=${query}&api_key=${API_KEY}&format=json&limit=20`
+    `${BASE_URL}?method=artist.search&artist=${query}&api_key=${API_KEY}&format=json&limit=800`
   );
   const data = await response.json();
   return data.results.artistmatches.artist;
@@ -25,7 +25,7 @@ export const searchArtists = async (query) => {
 
 export const searchAlbums = async (query) => {
   const response = await fetch(
-    `${BASE_URL}?method=album.search&album=${query}&api_key=${API_KEY}&format=json&limit=20`
+    `${BASE_URL}?method=album.search&album=${query}&api_key=${API_KEY}&format=json&limit=200`
   );
   const data = await response.json();
   return data.results.albummatches.album;
@@ -80,4 +80,22 @@ export const getTopTracks = async () => {
   );
   const data = await response.json();
   return data.tracks.track;
+};
+
+export const filterAndSortByRelevance = (items, searchTerm) => {
+  return items
+    .filter(item => item.name.toLowerCase().startsWith(searchTerm.toLowerCase()))
+    .sort((a, b) => parseInt(b.listeners || 0) - parseInt(a.listeners || 0));
+};
+
+export const filterPopularContent = (popularData, searchTerm, thresholds = { artists: 100, tracks: 100 }) => {
+  const filteredArtists = popularData.artists?.filter(artist => 
+    artist.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+  ) || [];
+  
+  const filteredTracks = popularData.tracks?.filter(track => 
+    track.name.toLowerCase().startsWith(searchTerm.toLowerCase())
+  ) || [];
+  
+  return { filteredArtists, filteredTracks };
 };

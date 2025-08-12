@@ -9,7 +9,8 @@ import { useState,useEffect } from "react";
 
 import { 
   getTopArtists,getTopTracks, searchTracks, searchArtists,
-  searchAlbumsByTag, searchArtistsByTag, searchTracksByTag 
+  searchAlbumsByTag, searchArtistsByTag, searchTracksByTag, 
+  filterAndSortByRelevance, filterPopularContent 
 } from "./utils/LastFMAPI";
 
 function App() {
@@ -32,11 +33,31 @@ function App() {
 
     const fetchSearchResults = async () => {
       setSearchLoading(true);
-      const [artists, tracks, artistTags, trackTags, albumTags] = await Promise.all([
-        searchArtists(query), searchTracks(query), searchArtistsByTag(query),
-        searchTracksByTag(query), searchAlbumsByTag(query)
-      ]);
-      setSearchResults({ artists, tracks, artistTags, trackTags, albumTags });
+      const thresholds = { artists: 2 , tracks: 2};
+      const {filteredArtists, filteredTracks} = filterPopularContent(popularData, query, thresholds);
+      const albumTags = await searchAlbumsByTag(query);
+      
+      let finalArtistResults;
+      let finalTrackResults;
+      
+      if (filteredArtists.length < thresholds.artists) {
+          const apiArtists = await searchArtists(query);
+          finalArtistResults = [...filteredArtists, ...apiArtists]
+      } else {
+        finalArtistResults = filteredArtists;
+      }
+
+      if (filteredTracks.length < thresholds.tracks) {
+        const apiTracks = await searchTracks(query);
+        finalTrackResults = [...filteredTracks, ...apiTracks]
+      } else {
+        finalTrackResults = filteredTracks;
+      }
+
+      const sortedArtistResults = filterAndSortByRelevance(finalArtistResults, query);
+      const sortedTrackResults = filterAndSortByRelevance(finalTrackResults, query);
+
+      setSearchResults({ artists: sortedArtistResults, tracks: sortedTrackResults, albumTags: albumTags});
       setSearchLoading(false);
       setSearchTerm('');
     };
@@ -63,32 +84,33 @@ function App() {
       return;
     }
     const fetchSuggestions = setTimeout(async () => {
-        console.log('popularData:', popularData);
-        console.log('popularData.artists length:', popularData.artists?.length);
-        console.log('First few artist names:', popularData.artists?.slice(0, 5).map(a => a.name));
-        console.log('Full artist list:', popularData.artists.map(artist => artist.name));       
+      console.log('popularData:', popularData);
+      console.log('popularData.artists length:', popularData.artists?.length);
+      console.log('First few artist names:', popularData.artists?.slice(0, 5).map(a => a.name));
+      console.log('Full artist list:', popularData.artists.map(artist => artist.name));
 
-      if (searchTerm.length > 2 && popularData?.artists && popularData?.tracks) {
-        const filteredArtists = popularData.artists.filter(artist => 
-          artist.name.toLowerCase().includes(searchTerm.toLowerCase()));
-        const filteredTracks = popularData.tracks.filter(track => 
-          track.name.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        let finalArtists;
-        let finalTracks;
+      const thresholds = { artists: 2 , tracks: 2};
         
-        if (filteredArtists.length < 0) {
-          finalArtists = await searchArtists(searchTerm);
+      if (searchTerm.length > 2 && popularData?.artists && popularData?.tracks) {
+        const { filteredArtists, filteredTracks } = filterPopularContent(popularData, searchTerm, thresholds);
+
+        let finalArtistSuggestions;
+        let finalTrackSuggestions;
+        
+        if (filteredArtists.length < thresholds.artists) {
+           const apiArtists = await searchArtists(searchTerm);
+           finalArtistSuggestions = [...filteredArtists, ...apiArtists]
         } else {
-          finalArtists = filteredArtists;
+          finalArtistSuggestions = filteredArtists;
         }
 
-        if (filteredTracks.length < 0) {
-          finalTracks = await searchTracks(searchTerm);
+        if (filteredTracks.length < thresholds.tracks) {
+          const apiTracks = await searchTracks(searchTerm);
+          finalTrackSuggestions = [...filteredTracks, ...apiTracks]
         } else {
-          finalTracks = filteredTracks;
+          finalTrackSuggestions = filteredTracks;
         }
-        const suggestions = [...finalArtists.slice(0, 3), ...finalTracks.slice(0, 5)];
+        const suggestions = [...finalArtistSuggestions.slice(0, 3), ...finalTrackSuggestions.slice(0, 5)];
 
         setSearchSuggestions(suggestions);
       }
@@ -105,7 +127,10 @@ function App() {
         setSearchTerm={setSearchTerm}
         suggestions= {searchSuggestions}/>
       {searchResults ? (
-        <SearchResults data={searchResults} loading={searchLoading} />
+        <SearchResults 
+          data={searchResults} 
+          loading={searchLoading} 
+          searchTerm={searchTerm}/>
       ) : (
         <PopularContent 
           artists={popularData?.artists} 
