@@ -5,6 +5,9 @@ import SearchBar from "./components/SearchBar";
 import SearchResults from "./components/SearchResults";
 import Track from "./components/Track";
 
+import OAuthTestHarness from "./tests/SpotifyOAuthTest";
+import SpotifyAPITestHarness from "./tests/SpotifyAPITest";
+
 import { useState,useEffect } from "react";
 
 import { 
@@ -14,6 +17,10 @@ import {
 } from "./utils/LastFMAPI";
 
 function App() {
+  const testing = true;
+  console.log("App component loading, testing mood:", testing);
+  console.log("current url:", window.location.href);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState(null);
   const [popularData, setPopularData] = useState(null);
@@ -119,26 +126,40 @@ function App() {
     return () => clearTimeout(fetchSuggestions);
   }, [searchTerm, popularData]);
 
-  return (
-    <div>
-      <SearchBar 
-        handleSearch={handleSearch} 
-        searchTerm={searchTerm} 
-        setSearchTerm={setSearchTerm}
-        suggestions= {searchSuggestions}/>
-      {searchResults ? (
-        <SearchResults 
-          data={searchResults} 
-          loading={searchLoading} 
-          searchTerm={searchTerm}/>
-      ) : (
-        <PopularContent 
-          artists={popularData?.artists} 
-          tracks={popularData?.tracks} 
-          loading={popularLoading}
-        />
-      )}
-    </div>
-  );
+  if (testing) {
+    console.log('rendering test harness')
+    return (
+      <div>
+        <h1>Testing Mode Active</h1>
+        <p>currentUrl: {window.location.href}</p>
+        <OAuthTestHarness />
+        <SpotifyAPITestHarness />
+      </div>
+    )
+  } else {
+      return (
+        <div>
+          <SearchBar 
+            handleSearch={handleSearch} 
+            searchTerm={searchTerm} 
+            setSearchTerm={setSearchTerm}
+            suggestions= {searchSuggestions}/>
+          {searchResults ? (
+            <SearchResults 
+              data={searchResults} 
+              loading={searchLoading} 
+              searchTerm={searchTerm}/>
+          ) : (
+            <PopularContent 
+              artists={popularData?.artists} 
+              tracks={popularData?.tracks} 
+              loading={popularLoading}
+            />
+          )}
+        </div>
+    );
+  };
+
+
 }
 export default App
